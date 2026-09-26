@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ahmad Shah | Portfolio</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="logo">Ahmad Shah</div>
+
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+
+    <!-- Home -->
+    <section id="home" class="hero">
+
+        <div class="hero-text">
+            <p class="small-title">WELCOME TO MY PORTFOLIO</p>
+
+            <h1>
+                Hi, I'm <span>Ahmad Shah</span>
+            </h1>
+
+            <h2>Web Developer & AI Enthusiast</h2>
+
+            <p>
+                I create modern websites, web applications
+                and AI-powered projects.
+            </p>
+
+            <div class="buttons">
+                <a href="#projects" class="btn">View Projects</a>
+                <a href="#contact" class="btn second">Contact Me</a>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- About -->
+    <section id="about">
+
+        <h2 class="section-title">About Me</h2>
+
+        <div class="about-box">
+
+            <h3>Who Am I?</h3>
+
+            <p>
+                My name is Ahmad Shah. I am learning web development
+                and artificial intelligence. I enjoy creating modern
+                websites and useful digital projects.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Skills -->
+    <section id="skills">
+
+        <h2 class="section-title">My Skills</h2>
+
+        <div class="skills-container">
+
+            <div class="skill">
+                <h3>HTML</h3>
+                <p>Website Structure</p>
+            </div>
+
+            <div class="skill">
+                <h3>CSS</h3>
+                <p>Modern Website Design</p>
+            </div>
+
+            <div class="skill">
+                <h3>JavaScript</h3>
+                <p>Interactive Websites</p>
+            </div>
+
+            <div class="skill">
+                <h3>AI</h3>
+                <p>AI & Chatbot Projects</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Projects -->
+    <section id="projects">
+
+        <h2 class="section-title">My Projects</h2>
+
+        <div class="projects-container">
+
+            <div class="project">
+                <h3>Portfolio Website</h3>
+
+                <p>
+                    My personal portfolio website
+                    built using HTML, CSS and JavaScript.
+                </p>
+
+                <button>View Project</button>
+            </div>
+
+
+            <div class="project">
+                <h3>AI Chatbot</h3>
+
+                <p>
+                    An AI chatbot that can answer
+                    users' questions.
+                </p>
+
+                <button>Coming Soon</button>
+            </div>
+
+
+            <div class="project">
+                <h3>Web Project</h3>
+
+                <p>
+                    A modern web project created
+                    for learning and practice.
+                </p>
+
+                <button>View Project</button>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Contact -->
+    <section id="contact">
+
+        <h2 class="section-title">Contact Me</h2>
+
+        <div class="contact-box">
+
+            <p>
+                Want to work with me or contact me?
+            </p>
+
+            <p>
+                📧 Email: your@email.com
+            </p>
+
+            <button onclick="showMessage()">
+                Contact Me
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI Chatbot -->
+    <div class="chatbot">
+
+        <button id="chatButton" onclick="openChat()">
+            🤖
+        </button>
+
+        <div id="chatWindow">
+
+            <div class="chat-header">
+                <h3>AI Assistant</h3>
+
+                <button onclick="closeChat()">×</button>
+            </div>
+
+            <div id="chatMessages">
+
+                <div class="bot-message">
+                    Hello! 👋 I'm Ahmad's AI Assistant.
+                    How can I help you?
+                </div>
+
+            </div>
+
+            <div class="chat-input">
+
+                <input
+                    type="text"
+                    id="userInput"
+                    placeholder="Type your message..."
+                >
+
+                <button onclick="sendMessage()">
+                    Send
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <footer>
+
+        <p>
+            © 2026 Ahmad Shah. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
