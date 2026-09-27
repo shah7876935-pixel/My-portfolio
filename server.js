@@ -13,10 +13,35 @@ const client = new OpenAI({
 });
 
 // Website files
-app.use(express.static(__dirname));
+// Only the public front-end assets below are served. Server-side source,
+// package manifests, docs and .env must never be reachable over HTTP.
+const PUBLIC_FILES = new Set(["index.html", "style.css", "script.js"]);
+
+app.use((req, res, next) => {
+
+    // API routes are handled further down and must pass through
+    if (req.path === "/api" || req.path.startsWith("/api/")) {
+        return next();
+    }
+
+    const requested = path.basename(decodeURIComponent(req.path));
+
+    if (requested === "" || PUBLIC_FILES.has(requested)) {
+        return next();
+    }
+
+    res.status(404).send("Not found");
+
+});
+
+app.use(express.static(__dirname, {
+    index: "index.html",
+    extensions: false,
+    dotfiles: "ignore"
+}));
 
 // JSON requests
-app.use(express.json());
+app.use(express.json({ limit: "16kb" }));
 
 
 // ===============================

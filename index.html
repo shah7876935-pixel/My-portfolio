@@ -4,192 +4,549 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ahmad Shah | Portfolio</title>
+    <title>Ahmad Shah | Web Developer &amp; AI Enthusiast</title>
+
+    <meta name="description" content="Portfolio of Ahmad Shah — Web Developer and AI Enthusiast building modern websites, web applications and AI-powered projects.">
+    <meta name="theme-color" content="#05070f">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Navigation -->
-    <header>
-        <div class="logo">Ahmad Shah</div>
+    <!-- =========================================================
+         AMBIENT BACKGROUND (decorative)
+         ========================================================= -->
 
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#skills">Skills</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
-
-
-    <!-- Home -->
-    <section id="home" class="hero">
-
-        <div class="hero-text">
-            <p class="small-title">WELCOME TO MY PORTFOLIO</p>
-
-            <h1>
-                Hi, I'm <span>Ahmad Shah</span>
-            </h1>
-
-            <h2>Web Developer & AI Enthusiast</h2>
-
-            <p>
-                I create modern websites, web applications
-                and AI-powered projects.
-            </p>
-
-            <div class="buttons">
-                <a href="#projects" class="btn">View Projects</a>
-                <a href="#contact" class="btn second">Contact Me</a>
-            </div>
-        </div>
-
-    </section>
+    <div class="bg-stage" aria-hidden="true">
+        <div class="bg-base"></div>
+        <div class="bg-grid"></div>
+        <div class="bg-orb bg-orb-a"></div>
+        <div class="bg-orb bg-orb-b"></div>
+        <div class="bg-orb bg-orb-c"></div>
+        <div class="bg-beam"></div>
+        <div class="bg-vignette"></div>
+    </div>
 
 
-    <!-- About -->
-    <section id="about">
+    <!-- =========================================================
+         SKIP LINK
+         ========================================================= -->
 
-        <h2 class="section-title">About Me</h2>
-
-        <div class="about-box">
-
-            <h3>Who Am I?</h3>
-
-            <p>
-                My name is Ahmad Shah. I am learning web development
-                and artificial intelligence. I enjoy creating modern
-                websites and useful digital projects.
-            </p>
-
-        </div>
-
-    </section>
+    <a class="skip-link" href="#home">Skip to main content</a>
 
 
-    <!-- Skills -->
-    <section id="skills">
+    <!-- =========================================================
+         NAVIGATION
+         ========================================================= -->
 
-        <h2 class="section-title">My Skills</h2>
+    <header id="siteHeader">
+        <div class="container header-inner">
 
-        <div class="skills-container">
+            <a class="logo" href="#home" aria-label="Ahmad Shah — home">
+                <span class="logo-mark" aria-hidden="true">AS</span>
+                <span class="logo-text">Ahmad Shah</span>
+            </a>
 
-            <div class="skill">
-                <h3>HTML</h3>
-                <p>Website Structure</p>
-            </div>
+            <nav id="primaryNav" aria-label="Primary">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#skills">Skills</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </nav>
 
-            <div class="skill">
-                <h3>CSS</h3>
-                <p>Modern Website Design</p>
-            </div>
-
-            <div class="skill">
-                <h3>JavaScript</h3>
-                <p>Interactive Websites</p>
-            </div>
-
-            <div class="skill">
-                <h3>AI</h3>
-                <p>AI & Chatbot Projects</p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Projects -->
-    <section id="projects">
-
-        <h2 class="section-title">My Projects</h2>
-
-        <div class="projects-container">
-
-            <div class="project">
-                <h3>Portfolio Website</h3>
-
-                <p>
-                    My personal portfolio website
-                    built using HTML, CSS and JavaScript.
-                </p>
-
-                <button>View Project</button>
-            </div>
-
-
-            <div class="project">
-                <h3>AI Chatbot</h3>
-
-                <p>
-                    An AI chatbot that can answer
-                    users' questions.
-                </p>
-
-                <button>Coming Soon</button>
-            </div>
-
-
-            <div class="project">
-                <h3>Web Project</h3>
-
-                <p>
-                    A modern web project created
-                    for learning and practice.
-                </p>
-
-                <button>View Project</button>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- Contact -->
-    <section id="contact">
-
-        <h2 class="section-title">Contact Me</h2>
-
-        <div class="contact-box">
-
-            <p>
-                Want to work with me or contact me?
-            </p>
-
-            <p>
-                📧 Email: your@email.com
-            </p>
-
-            <button onclick="showMessage()">
-                Contact Me
+            <button
+                id="navToggle"
+                class="nav-toggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="primaryNav"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
 
         </div>
+    </header>
 
-    </section>
 
+    <main>
 
-    <!-- AI Chatbot -->
-    <div class="chatbot">
+        <!-- =====================================================
+             HOME / HERO
+             ===================================================== -->
 
-        <button id="chatButton" onclick="openChat()">
-            🤖
-        </button>
+        <section id="home" class="hero">
 
-        <div id="chatWindow">
+            <div class="container hero-grid">
 
-            <div class="chat-header">
-                <h3>AI Assistant</h3>
+                <div class="hero-text">
 
-                <button onclick="closeChat()">×</button>
+                    <p class="small-title">
+                        <span class="pulse-dot" aria-hidden="true"></span>
+                        Welcome to my portfolio
+                    </p>
+
+                    <h1>
+                        Hi, I'm <span class="accent-text">Ahmad Shah</span>
+                    </h1>
+
+                    <h2>Web Developer &amp; AI Enthusiast</h2>
+
+                    <p class="hero-lead">
+                        I create modern websites, web applications
+                        and AI-powered projects.
+                    </p>
+
+                    <div class="buttons">
+                        <a href="#projects" class="btn">
+                            View Projects
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6"/>
+                            </svg>
+                        </a>
+
+                        <a href="#contact" class="btn second">
+                            Contact Me
+                        </a>
+                    </div>
+
+                    <ul class="hero-chips" aria-label="Core technologies">
+                        <li>HTML</li>
+                        <li>CSS</li>
+                        <li>JavaScript</li>
+                        <li>Node.js</li>
+                        <li>AI</li>
+                    </ul>
+
+                </div>
+
+                <!-- Decorative developer console card -->
+                <aside class="hero-visual" aria-hidden="true">
+
+                    <div class="hero-ring hero-ring-outer"></div>
+                    <div class="hero-ring hero-ring-inner"></div>
+
+                    <div class="console-card">
+
+                        <div class="console-bar">
+                            <span class="console-dot"></span>
+                            <span class="console-dot"></span>
+                            <span class="console-dot"></span>
+                            <span class="console-title">developer.js</span>
+                        </div>
+
+                        <pre class="console-body"><code><span class="code-key">const</span> <span class="code-var">ahmad</span> = {
+  <span class="code-prop">role</span>:   <span class="code-str">"Web Developer"</span>,
+  <span class="code-prop">focus</span>:  <span class="code-str">"Web + AI"</span>,
+  <span class="code-prop">stack</span>:  [<span class="code-str">"HTML"</span>, <span class="code-str">"CSS"</span>, <span class="code-str">"JS"</span>, <span class="code-str">"Node"</span>],
+  <span class="code-prop">building</span>: <span class="code-str">"AI chatbots"</span>,
+  <span class="code-prop">motto</span>:  <span class="code-str">"Learn. Build. Improve."</span>
+};</code></pre>
+
+                    </div>
+
+                </aside>
+
             </div>
 
-            <div id="chatMessages">
+            <a class="hero-scroll" href="#about" aria-label="Scroll to About section">
+                <span class="hero-scroll-line" aria-hidden="true"></span>
+                <span class="hero-scroll-text">Scroll</span>
+            </a>
+
+        </section>
+
+
+        <!-- =====================================================
+             ABOUT
+             ===================================================== -->
+
+        <section id="about">
+
+            <div class="container">
+
+                <header class="section-head">
+                    <h2 class="section-title">About Me</h2>
+                    <p class="section-sub">
+                        A developer focused on the web, artificial intelligence
+                        and building things that are actually useful.
+                    </p>
+                </header>
+
+                <div class="about-grid">
+
+                    <article class="glass-card about-box">
+
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21a8 8 0 1 0-16 0"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+
+                        <h3>Who Am I?</h3>
+
+                        <p>
+                            My name is Ahmad Shah. I am learning web development
+                            and artificial intelligence. I enjoy creating modern
+                            websites and useful digital projects.
+                        </p>
+
+                    </article>
+
+                    <article class="glass-card about-box">
+
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2 3 7l9 5 9-5-9-5Z"/>
+                                <path d="M3 12l9 5 9-5"/>
+                                <path d="M3 17l9 5 9-5"/>
+                            </svg>
+                        </span>
+
+                        <h3>What I Focus On</h3>
+
+                        <p>
+                            Learning modern web technologies, designing clean
+                            interfaces, and connecting websites to real AI
+                            features through Node.js and the OpenAI API.
+                        </p>
+
+                    </article>
+
+                    <article class="glass-card about-box">
+
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18h6"/>
+                                <path d="M10 22h4"/>
+                                <path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/>
+                            </svg>
+                        </span>
+
+                        <h3>How I Work</h3>
+
+                        <p>
+                            Build small, test often and improve continuously.
+                            Every project is a chance to learn a new technique
+                            and apply it in a real, working website.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SKILLS
+             ===================================================== -->
+
+        <section id="skills">
+
+            <div class="container">
+
+                <header class="section-head">
+                    <h2 class="section-title">My Skills</h2>
+                    <p class="section-sub">
+                        The technologies I use to design, build and connect
+                        modern web experiences.
+                    </p>
+                </header>
+
+                <div class="skills-container">
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 9l-3 3 3 3M16 9l3 3-3 3M13.5 6l-3 12"/>
+                            </svg>
+                        </span>
+                        <h3>HTML</h3>
+                        <p>Website Structure</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.5 3.5 8 8l-4.5 1.5L8 11l1.5 4.5L11 11l4.5-1.5L11 8l-1.5-4.5Z"/>
+                                <path d="M17.5 13.5 16 18l-3.5 1.5 3.5 1.5 1.5 3.5 1.5-3.5 3.5-1.5-3.5-1.5-1.5-4.5Z"/>
+                            </svg>
+                        </span>
+                        <h3>CSS</h3>
+                        <p>Modern Website Design</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 3H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1"/>
+                                <path d="M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"/>
+                            </svg>
+                        </span>
+                        <h3>JavaScript</h3>
+                        <p>Interactive Experiences</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
+                            </svg>
+                        </span>
+                        <h3>Web Development</h3>
+                        <p>Responsive Frontend</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z"/>
+                                <path d="M12 12v9.5M20.5 7 12 12 3.5 7M12 12 3.5 17M12 12l8.5 5"/>
+                            </svg>
+                        </span>
+                        <h3>Node.js</h3>
+                        <p>Server &amp; APIs</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/>
+                                <path d="M10 3v3.5M14 3v3.5M10 17.5V21M14 17.5V21M3 10h3.5M3 14h3.5M17.5 10H21M17.5 14H21"/>
+                                <path d="M10.5 12h3"/>
+                            </svg>
+                        </span>
+                        <h3>AI</h3>
+                        <p>AI &amp; Chatbot Projects</p>
+                    </article>
+
+                    <article class="glass-card skill">
+                        <span class="card-glow" aria-hidden="true"></span>
+                        <span class="skill-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 15a3 3 0 0 1-3 3H9l-4 3V6a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9Z"/>
+                                <path d="M8.5 9.5h7M8.5 12.5h4"/>
+                            </svg>
+                        </span>
+                        <h3>Chatbot Development</h3>
+                        <p>General AI Assistants</p>
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             PROJECTS
+             ===================================================== -->
+
+        <section id="projects">
+
+            <div class="container">
+
+                <header class="section-head">
+                    <h2 class="section-title">My Projects</h2>
+                    <p class="section-sub">
+                        Things I have designed and built — including this
+                        website and its AI assistant.
+                    </p>
+                </header>
+
+                <div class="projects-container">
+
+                    <article class="glass-card project">
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="project-index" aria-hidden="true">01</span>
+
+                        <h3>Portfolio Website</h3>
+
+                        <p>
+                            My personal portfolio website
+                            built using HTML, CSS and JavaScript.
+                        </p>
+
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li>HTML</li>
+                            <li>CSS</li>
+                            <li>JavaScript</li>
+                        </ul>
+
+                        <!-- TODO: no public project URL yet — keep as a non-link button -->
+                        <button type="button" class="btn card-btn">View Project</button>
+                    </article>
+
+
+                    <article class="glass-card project">
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="project-index" aria-hidden="true">02</span>
+
+                        <h3>AI Chatbot</h3>
+
+                        <p>
+                            An AI chatbot that can answer
+                            users' questions.
+                        </p>
+
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li>Node.js</li>
+                            <li>Express</li>
+                            <li>OpenAI API</li>
+                        </ul>
+
+                        <button type="button" class="btn card-btn" disabled>Coming Soon</button>
+                    </article>
+
+
+                    <article class="glass-card project">
+                        <span class="card-glow" aria-hidden="true"></span>
+
+                        <span class="project-index" aria-hidden="true">03</span>
+
+                        <h3>Web Project</h3>
+
+                        <p>
+                            A modern web project created
+                            for learning and practice.
+                        </p>
+
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li>HTML</li>
+                            <li>CSS</li>
+                            <li>JavaScript</li>
+                        </ul>
+
+                        <!-- TODO: no public project URL yet — keep as a non-link button -->
+                        <button type="button" class="btn card-btn">View Project</button>
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             CONTACT
+             ===================================================== -->
+
+        <section id="contact">
+
+            <div class="container">
+
+                <header class="section-head">
+                    <h2 class="section-title">Contact Me</h2>
+                    <p class="section-sub">
+                        Have a question, an idea or a project in mind?
+                        My AI assistant is always available too.
+                    </p>
+                </header>
+
+                <div class="contact-box glass-card">
+
+                    <span class="card-glow" aria-hidden="true"></span>
+
+                    <p class="contact-lead">
+                        Want to work with me or contact me?
+                    </p>
+
+                    <!-- TODO: replace placeholder with the real email address -->
+                    <p class="contact-email">
+                        <span class="contact-email-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2.5" y="4.5" width="19" height="15" rx="3"/>
+                                <path d="m3.5 7 8.5 6 8.5-6"/>
+                            </svg>
+                        </span>
+                        <span>Email: your@email.com</span>
+                    </p>
+
+                    <button type="button" class="btn" onclick="showMessage()">
+                        Contact Me
+                    </button>
+
+                    <p id="contactStatus" class="contact-status" role="status" aria-live="polite"></p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         AI CHATBOT
+         ========================================================= -->
+
+    <div class="chatbot">
+
+        <button id="chatButton" type="button" onclick="openChat()" aria-label="Open AI assistant chat" aria-expanded="false" aria-controls="chatWindow">
+            <span aria-hidden="true">😍</span>
+        </button>
+
+        <div
+            id="chatWindow"
+            class="chat-window"
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="chatTitle"
+        >
+
+            <div class="chat-header">
+                <div class="chat-identity">
+                    <span class="chat-avatar" aria-hidden="true">AI</span>
+                    <div class="chat-titles">
+                        <h3 id="chatTitle">AI AHMAD</h3>
+                        <span class="chat-status">
+                            <span class="chat-status-dot" aria-hidden="true"></span>
+                            Online
+                        </span>
+                    </div>
+                </div>
+
+                <button type="button" class="chat-close" onclick="closeChat()" aria-label="Close AI assistant chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                        <path d="M18 6 6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-atomic="false">
 
                 <div class="bot-message">
                     Hello! 👋 I'm Ahmad's AI Assistant.
@@ -200,14 +557,21 @@
 
             <div class="chat-input">
 
+                <label class="visually-hidden" for="userInput">Type your message</label>
+
                 <input
                     type="text"
                     id="userInput"
                     placeholder="Type your message..."
+                    autocomplete="off"
+                    maxlength="2000"
                 >
 
-                <button onclick="sendMessage()">
-                    Send
+                <button type="button" class="chat-send" onclick="sendMessage()" aria-label="Send message">
+                    <span class="chat-send-label">Send</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 12h15M13 6l6 6-6 6"/>
+                    </svg>
                 </button>
 
             </div>
@@ -217,12 +581,16 @@
     </div>
 
 
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+
     <footer>
-
-        <p>
-            © 2026 Ahmad Shah. All Rights Reserved.
-        </p>
-
+        <div class="container">
+            <p>
+                © <span id="currentYear">2026</span> Ahmad Shah. All Rights Reserved.
+            </p>
+        </div>
     </footer>
 
 

@@ -1,9 +1,10 @@
 {
   "name": "ahmad-portfolio",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "Ahmad Shah — Web Developer & AI Enthusiast portfolio website with an AI chatbot",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
