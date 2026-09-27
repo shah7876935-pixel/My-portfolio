@@ -36,21 +36,37 @@ explicitly asks for it and you have explained the cost.
 ```
 Ahmad portfolio/
 ├── index.html              # Single-page site: nav, hero, about, skills, projects, contact, chatbot, footer
-├── style.css               # All styling (~540 lines, plain CSS, no preprocessor)
-├── script.js               # All client JS: chat open/close, send, Enter-to-send, contact alert
+├── style.css               # All styling (~1850 lines, plain CSS, no preprocessor)
+├── script.js               # All client JS: nav, scroll reveal, chat, keyboard, contact status
 ├── server.js               # Express server: static hosting + POST /api/chat proxy to OpenAI
 ├── package.json            # deps: express, openai, dotenv
 ├── package-lock.json
 ├── .env                    # OPENAI_API_KEY — NEVER read aloud, never commit, never print
 ├── .gitignore              # .env, node_modules/
 ├── portfolio link.txt      # Netlify live URL
-├── Music - Shortcut.lnk    # stray user file — leave alone
+├── Music - Shortcut.lnk    # stray user file — leave alone, never commit
 ├── AGENTS.md               # this file
 └── node_modules/           # installed deps
 ```
 
 There is **no** `src/`, no `public/`, no build output, no test suite, no CI.
 Frontend and backend share one flat root directory. Keep it that way unless told otherwise.
+
+### 2.1 Known deployment gap (read before touching the chatbot)
+
+The live site is **static Netlify hosting**, but the chatbot needs a running Node
+process. These two facts do not currently line up:
+
+- **Locally** `node server.js` serves the site and `/api/chat` works.
+- **On Netlify** there is no Express process, so `POST /api/chat` returns 404 and the
+  chatbot is broken on the live site.
+- Netlify also publishes the whole repo root, so `server.js`, `package.json` and
+  `AGENTS.md` are reachable as static files. The `PUBLIC_FILES` allowlist in
+  `server.js` protects localhost only — it has no effect on Netlify.
+
+Resolving this needs either a Netlify Function, a real Node host, or an explicit
+decision to keep the chatbot local-only. **Do not silently assume the deployed
+chatbot works.** See §21.
 
 ---
 
@@ -341,18 +357,24 @@ and open/close animations.
 
 ### 9.4 Known chatbot issues (verify before "fixing" — they may already be resolved)
 
-1. **Model id `gpt-5.6-luna` (`server.js`).** If the chatbot returns a 500 or a
-   "model not found" style error, this id is the first suspect. Confirm which model ids the
-   account actually has access to before changing it, and report the change.
-2. **`#chatWindow` open/close uses inline `display`.** `openChat()` sets
-   `style.display = "flex"`, `closeChat()` sets `"none"`, while the CSS sets
-   `display: none` + `flex-direction: column`. CSS transitions/animations on open will
-   **not** fire until visibility is class-driven — switch to a class/attribute approach
-   when you add animations.
-3. **Error strings are mixed-language** in `script.js` (e.g. Urdu fallbacks). Unify the
-   language deliberately as part of any chatbot rewrite.
-4. **No rate limiting or message cap** on `/api/chat`. Consider it if the site is deployed
-   publicly, but never at the cost of breaking the feature.
+1. **Model id `gpt-5.6-luna` (`server.js`).** Status as of the last test: **unverified,
+   not proven bad.** A live request returned HTTP 500, but the server log showed
+   `429 insufficient_quota` / `code: credit_balance_exhausted` — *"You have no credits
+   remaining."* The request was rejected at the billing layer, so it never reached model
+   validation and this id was neither confirmed nor cleared. Do not change it on a hunch.
+   Add credits, send a real message, and only then judge the id from the actual error.
+2. **OpenAI account credits.** A depleted balance is the one confirmed cause of a 500
+   so far. It is a billing problem, not a code problem, and cannot be fixed in this repo.
+   Fix at https://platform.openai.com/settings/organization/billing/
+3. **`#chatWindow` open/close uses inline `display`.** **Already resolved** — `openChat()`
+   and `closeChat()` now toggle an `.is-open` class, so CSS transitions fire.
+4. **Error strings were mixed-language** in `script.js`. **Already resolved** — all
+   chatbot messages are now consistent English.
+5. **Input stayed usable during a request**, allowing duplicate sends. **Already
+   resolved** — `setChatBusy()` disables the input and send button until the reply lands.
+6. **No rate limiting or message cap** on `/api/chat`. Still open. Consider it if the site
+   is deployed publicly, but never at the cost of breaking the feature. Note that a
+   public, unmetered chatbot proxy is a spend risk for the site owner.
 
 ---
 
@@ -485,9 +507,11 @@ git diff            # read the actual changes
 git log --oneline   # understand history
 ```
 
-Current state to be aware of: branch `main`, one commit (`df2404f first commit`),
-with **uncommitted user edits in `index.html`** (chatbot launcher emoji, chat header label)
-and untracked `portfolio link.txt` and `Music - Shortcut.lnk`.
+Current state to be aware of: branch `main`, **two commits** —
+`df2404f first commit` and `3c5b6e4 Redesign: premium UI, accessibility and responsive layout`
+(both pushed to `origin/main`). The redesign is therefore the live source of truth;
+there is no longer a pile of uncommitted work. The only untracked file is
+`Music - Shortcut.lnk`, which is a stray user file and must stay that way.
 
 - **Do not delete user work.** Uncommitted changes are precious — commit or leave them,
   never discard.
@@ -578,7 +602,45 @@ questions about the portfolio.
 
 ---
 
-## 21. Final Rule
+## 21. Deployment & the Live Site
+
+The public URL is `https://dazzling-kitsune-b242ff.netlify.app/` (see `portfolio link.txt`).
+Two facts about it are easy to get wrong, so state them plainly in any report:
+
+1. **The deployed site is static Netlify hosting.** `server.js` runs only on localhost.
+   Therefore the AI chatbot **does not work on the live site** — `POST /api/chat` has
+   no handler there. Never report "the chatbot is live" without saying which host was tested.
+2. **The live site is currently password-protected** (HTTP 401, `Server: Netlify`).
+   Visitors cannot see the portfolio until that protection is turned off in the Netlify
+   UI. This cannot be fixed from the repository.
+
+**Pushing to `main` is what updates the live site**, but only if the Netlify site is
+linked to this GitHub repo. Confirm the deploy actually happened before claiming the
+redes is live; a successful `git push` alone does not prove a deploy.
+
+**Repo files are published as static assets.** `.env` is safe (it is gitignored, so it is
+never in the repo), but `server.js`, `package.json` and `AGENTS.md` are all reachable on
+the live site. None of them contain the API key, so this is tidiness rather than a
+leak, but it is fixed properly with a `netlify.toml` that allowlists the public files —
+mirroring the `PUBLIC_FILES` logic in `server.js`. Adding one is a change to deployment
+architecture: **propose it, do not just add it.**
+
+### 21.1 If the deployed chatbot must work
+
+Options, cheapest first. Ask the user before implementing any of them:
+
+| Option | Cost | Trade-off |
+| --- | --- | --- |
+| Netlify Function (`netlify/functions/chat.js`) | Free tier available | Key must move to Netlify env vars; frontend call path changes from `/api/chat` to the function URL. Dev server and deployed server then need two code paths. |
+| Deploy `server.js` to Render / Railway / Fly | Free tier available | Real Node host, same code; needs a second always-on service and a way for the browser to reach it. |
+| Keep the chatbot local-only | Zero | Say so honestly on the page; do not show a chatbot that cannot respond. |
+
+Whichever is chosen, §9.3 still applies: the key stays server-side only, and the browser
+only ever calls a same-origin or explicitly configured endpoint.
+
+---
+
+## 22. Final Rule
 
 This file is the **permanent development guide** for this project. Future coding agents
 must follow it whenever they modify, upgrade, debug, redesign, or extend the website.
