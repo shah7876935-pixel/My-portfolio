@@ -607,6 +607,8 @@ function initScrollReveal() {
 // ===============================
 // One listener per card handles both effects. Tilt is deliberately
 // shallow (see MAX_TILT) so cards feel responsive rather than wobbly.
+// The card's glow and shadow both lean towards the pointer, so the
+// whole surface reads as lit from a single direction.
 
 const MAX_TILT = 5;
 
@@ -628,13 +630,17 @@ function initCardGlow() {
             card.style.setProperty("--glow-x", (event.clientX - rect.left) + "px");
             card.style.setProperty("--glow-y", (event.clientY - rect.top) + "px");
 
-            if (!canTilt) {
-                return;
-            }
-
             // -0.5 .. 0.5 across the card
             const acrossX = (event.clientX - rect.left) / rect.width - 0.5;
             const acrossY = (event.clientY - rect.top) / rect.height - 0.5;
+
+            // Drives the directional shadow in style.css section 16.4
+            card.style.setProperty("--shadow-x", acrossX.toFixed(3));
+            card.style.setProperty("--shadow-y", acrossY.toFixed(3));
+
+            if (!canTilt) {
+                return;
+            }
 
             card.style.setProperty("--tilt-y", (acrossX * MAX_TILT).toFixed(2) + "deg");
             card.style.setProperty("--tilt-x", (-acrossY * MAX_TILT).toFixed(2) + "deg");
@@ -646,6 +652,8 @@ function initCardGlow() {
 
             card.style.setProperty("--tilt-x", "0deg");
             card.style.setProperty("--tilt-y", "0deg");
+            card.style.setProperty("--shadow-x", "0");
+            card.style.setProperty("--shadow-y", "0");
 
         });
 
@@ -742,6 +750,10 @@ function initPointerGlow() {
 
         const over = event.target instanceof Element && event.target.closest(interactive);
         dot.classList.toggle("is-hot", Boolean(over));
+
+        // The soft aura leans in as well, so the two layers read as
+        // one cursor instead of a dot being followed by a glow
+        aura.classList.toggle("is-hot", Boolean(over));
 
         start();
 
@@ -873,6 +885,302 @@ function initHeroPortrait() {
 
 
 // ===============================
+// READING PROGRESS BAR
+// ===============================
+// A hairline under the header showing how far down the page the
+// visitor is. The only thing that changes is --progress, which
+// scales a fixed bar, so scrolling never triggers a reflow.
+
+function initScrollProgress() {
+
+    const bar = document.getElementById("scrollProgress");
+
+    if (!bar) {
+        return;
+    }
+
+    let frame = 0;
+
+    const update = () => {
+
+        frame = 0;
+
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+
+        // A page no taller than the viewport has nothing to report
+        if (scrollable <= 0) {
+            bar.style.setProperty("--progress", "0");
+            return;
+        }
+
+        const ratio = Math.min(Math.max(window.scrollY / scrollable, 0), 1);
+
+        bar.style.setProperty("--progress", ratio.toFixed(4));
+
+    };
+
+    // Coalesce bursts of scroll events into a single frame
+    const schedule = () => {
+
+        if (!frame) {
+            frame = requestAnimationFrame(update);
+        }
+
+    };
+
+    update();
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+
+}
+
+
+// ===============================
+// MAGNETIC BUTTONS
+// ===============================
+// A button leans towards the pointer once it comes within range,
+// and grows very slightly while it is engaged. The pull falls off
+// to zero at the edge of the range, so the button settles exactly
+// where it looks like it is rather than chasing the cursor.
+// Values are eased in one frame loop that stops as soon as the
+// button has settled, so nothing runs at idle.
+
+const MAGNET_RANGE = 26;
+const MAGNET_PULL = 0.28;
+const MAGNET_SCALE = 1.03;
+const MAGNET_EASE = 0.18;
+
+function initMagneticButtons() {
+
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (!finePointer || prefersReducedMotion()) {
+        return;
+    }
+
+    document.querySelectorAll(".btn:not(:disabled)").forEach((button) => {
+
+        let targetX = 0;
+        let targetY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let currentScale = 1;
+        let engaged = false;
+        let frame = 0;
+
+        function follow() {
+
+            const targetScale = engaged ? MAGNET_SCALE : 1;
+
+            currentX += (targetX - currentX) * MAGNET_EASE;
+            currentY += (targetY - currentY) * MAGNET_EASE;
+            currentScale += (targetScale - currentScale) * MAGNET_EASE;
+
+            button.style.setProperty("--mag-x", currentX.toFixed(2) + "px");
+            button.style.setProperty("--mag-y", currentY.toFixed(2) + "px");
+            button.style.setProperty("--mag-scale", currentScale.toFixed(3));
+
+            const settled =
+                Math.abs(targetX - currentX) < 0.1 &&
+                Math.abs(targetY - currentY) < 0.1 &&
+                Math.abs(targetScale - currentScale) < 0.002;
+
+            frame = settled ? 0 : requestAnimationFrame(follow);
+
+        }
+
+        function schedule() {
+
+            if (!frame) {
+                frame = requestAnimationFrame(follow);
+            }
+
+        }
+
+        button.addEventListener("pointermove", (event) => {
+
+            const rect = button.getBoundingClientRect();
+
+            const offsetX = event.clientX - (rect.left + rect.width / 2);
+            const offsetY = event.clientY - (rect.top + rect.height / 2);
+
+            // How far outside the button the pointer is, per axis
+            const gapX = Math.abs(offsetX) - rect.width / 2;
+            const gapY = Math.abs(offsetY) - rect.height / 2;
+
+            const distance = Math.hypot(Math.max(gapX, 0), Math.max(gapY, 0));
+
+            engaged = distance < MAGNET_RANGE;
+
+            if (!engaged) {
+                targetX = 0;
+                targetY = 0;
+                return;
+            }
+
+            // Strongest on the button itself, fading to nothing at
+            // the outer edge of the range
+            const falloff = 1 - Math.min(distance / MAGNET_RANGE, 1);
+
+            targetX = offsetX * MAGNET_PULL * falloff;
+            targetY = offsetY * MAGNET_PULL * falloff;
+
+            schedule();
+
+        });
+
+        button.addEventListener("pointerleave", () => {
+
+            engaged = false;
+            targetX = 0;
+            targetY = 0;
+
+            schedule();
+
+        });
+
+    });
+
+}
+
+
+// ===============================
+// SPLIT-TEXT HEADING REVEAL
+// ===============================
+// Each section title is broken into per-word masks so the words
+// can rise into view one after another. The plain sentence is
+// kept as aria-label and the generated spans are hidden from
+// assistive tech, so the heading is still announced as one line.
+// Nothing is split when motion is reduced, and the split only
+// ever touches the DOM, so the page is complete without JS.
+
+function initSplitText() {
+
+    if (prefersReducedMotion()) {
+        return;
+    }
+
+    const headings = Array.from(document.querySelectorAll(".section-title"));
+    const targets = [];
+
+    headings.forEach((heading) => {
+
+        const text = heading.textContent.trim();
+
+        if (!text) {
+            return;
+        }
+
+        const words = text.split(/\s+/);
+
+        heading.setAttribute("aria-label", text);
+        heading.textContent = "";
+
+        words.forEach((word, index) => {
+
+            const mask = document.createElement("span");
+
+            mask.className = "word-mask";
+            mask.setAttribute("aria-hidden", "true");
+
+            const inner = document.createElement("span");
+
+            inner.className = "word-in";
+            inner.style.setProperty("--i", String(index));
+            inner.textContent = word;
+
+            mask.appendChild(inner);
+            heading.appendChild(mask);
+
+            if (index < words.length - 1) {
+                heading.appendChild(document.createTextNode(" "));
+            }
+
+        });
+
+        targets.push(heading);
+
+    });
+
+    if (!targets.length) {
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+
+        entries.forEach((entry) => {
+
+            if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+            }
+
+        });
+
+    }, {
+        rootMargin: "0px 0px -10% 0px",
+        threshold: 0.2
+    });
+
+    targets.forEach((heading) => observer.observe(heading));
+
+}
+
+
+// ===============================
+// SECTION TRANSITION SWEEP
+// ===============================
+// A single hairline of light crosses the top of the page whenever
+// an in-page section link is followed. It is purely decorative:
+// the click is never intercepted, so native smooth scrolling
+// still performs the navigation, and the overlay holds no
+// pointer events while it plays.
+
+function initSectionTransitions() {
+
+    const veil = document.getElementById("pageVeil");
+
+    if (!veil) {
+        return;
+    }
+
+    const links = document.querySelectorAll(
+        "#primaryNav a[href^='#'], .hero-scroll[href^='#'], .btn[href^='#']"
+    );
+
+    if (!links.length) {
+        return;
+    }
+
+    const reduceMotion = prefersReducedMotion();
+
+    let timer = 0;
+
+    const sweep = () => {
+
+        if (reduceMotion) {
+            return;
+        }
+
+        // Restart the one-shot animation even on back-to-back clicks
+        veil.classList.remove("is-flash");
+        void veil.offsetWidth;
+        veil.classList.add("is-flash");
+
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            veil.classList.remove("is-flash");
+        }, 800);
+
+    };
+
+    links.forEach((link) => link.addEventListener("click", sweep));
+
+}
+
+
+// ===============================
 // INIT
 // ===============================
 
@@ -909,9 +1217,13 @@ function init() {
     initHeaderScroll();
     initActiveNavLink();
     initScrollReveal();
+    initSplitText();
     initCardGlow();
     initHeroPortrait();
     initPointerGlow();
+    initMagneticButtons();
+    initScrollProgress();
+    initSectionTransitions();
     initKeyboardShortcuts();
     initCurrentYear();
 

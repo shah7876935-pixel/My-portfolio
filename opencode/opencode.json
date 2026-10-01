@@ -1,0 +1,53 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+
+    "instructions": [
+        "../AGENTS.md",
+        "../skills/SKILL.md"
+    ],
+
+    "skills": [
+        "./skills"
+    ],
+
+    "agents": {
+        "portfolio": {
+            "description": "Primary agent for the Ahmad Shah portfolio. Understands the existing code before touching it, never deletes files or breaks existing features, and keeps the responsive layout intact.",
+            "mode": "all",
+            "system": "You are working in the Ahmad Shah portfolio project: a build-less vanilla HTML / CSS / JavaScript site served by an Express server (Node.js + Express 5 + OpenAI SDK). Files: index.html, style.css, script.js, server.js, package.json, AGENTS.md, images/.\n\n== RULE 1: UNDERSTAND THE EXISTING CODE FIRST ==\nRead the real files before you change anything. Never edit from memory or from assumptions. Check `git status` and `git diff` first so you know what is already modified, and re-check afterwards. For any UI change read all three of index.html, style.css and script.js, because the DOM contract is shared between them. Trace a change through every file that depends on it before you make it.\n\n== RULE 2: NEVER DELETE OR 'CLEAN UP' FILES ==\nDo not delete, rename or empty files, and do not remove existing sections, elements, IDs, classes, comments, tokens or rules. There is no dead code to prune here and nothing is unnecessary: .env, package-lock.json, portfolio link.txt, the Music - Shortcut.lnk user file and every node_modules dependency are all intentional. Do not strip 'unused' CSS, do not rename selectors to tidy up, do not inline or minify existing files, and do not create a second copy of something that already exists (no style2.css, no main.js next to script.js, no index2.html). If you believe something really is unnecessary, say so and wait for the user to confirm - never act on it.\n\n== RULE 3: WRITE CLEAN CODE ==\nImprove the existing files in place with small, surgical, reviewable edits. Match the existing conventions: 4-space indent, double-quoted JS strings, one blank line between logical blocks, and the `/* ===== SECTION ===== */` banner comments in CSS. Name things meaningfully. Comment intent, not narration. No duplicated logic, no unused code, no dead code, no hard-coded values where a CSS custom property already exists. Add a dependency only if you can state plainly why the vanilla solution will not work - this project is intentionally dependency-light and build-less, so in practice the answer is no.\n\n== RULE 4: KEEP THE RESPONSIVE DESIGN INTACT ==\nThe site must stay correct at 1440, 1280, 1024, 768, 480 and 375 px, with no horizontal scrollbar at any width: document.documentElement.scrollWidth must never exceed document.documentElement.clientWidth. Never introduce 100vw, fixed pixel widths, or content that can overflow. Prefer fluid clamp() type and minmax() grids over breakpoint patches. Anything pointer-driven (magnetic buttons, 3D tilt, custom cursors) must be gated behind `@media (hover: hover) and (pointer: fine)` and must have a working non-hover fallback. Keep the fixed header clear of content and the chatbot usable on narrow screens.\n\n== RULE 5: DO NOT BREAK EXISTING FEATURES ==\nEvery existing feature must keep working after every change: the preloader, smooth anchor navigation and active-section highlighting, mobile menu, scroll reveal, card tilt, pointer glow, contact status message, the AI chatbot (POST /api/chat with `{ message }` in and `{ reply }` or `{ error }` out - the contract is shared by index.html, script.js and server.js, so change all three together or none), keyboard shortcuts and the footer year. Animate only transform and opacity. Keep prefers-reduced-motion support working. Never let an animation gate content: the page must be complete and usable with JavaScript disabled.\n\n== HONESTY AND SAFETY ==\nNever fabricate skills, percentages, projects, links, testimonials or contact details - placeholders stay until the user supplies real data. Never expose OPENAI_API_KEY in any file, comment, log or output; it lives only in .env. Do not print process.env. Run `git status` before and after and confirm nothing unexpected changed."
+        }
+    },
+
+    "permissions": [
+        {
+            "action": "edit",
+            "resource": "*.env",
+            "effect": "deny"
+        },
+        {
+            "action": "edit",
+            "resource": "**/node_modules/**",
+            "effect": "deny"
+        },
+        {
+            "action": "shell",
+            "resource": "git push *",
+            "effect": "ask"
+        },
+        {
+            "action": "shell",
+            "resource": "git reset *",
+            "effect": "ask"
+        },
+        {
+            "action": "shell",
+            "resource": "git clean *",
+            "effect": "ask"
+        },
+        {
+            "action": "shell",
+            "resource": "rm *",
+            "effect": "ask"
+        }
+    ]
+}

@@ -17,6 +17,7 @@
    13. Animations & reveal
    14. Reduced motion
    15. Responsive
+   16. Motion enhancements (additive)
    ========================================================= */
 
 
@@ -898,14 +899,18 @@ nav a.is-active::after {
 /* The copy column is fluid and the portrait column is a fixed-ish band that
    stops short of the container edge. The wide gap is what keeps the text
    clear of the photo: the frame, its rings and its glow all live strictly
-   inside the second column, so they can never reach the headline. */
+   inside the second column, so they can never reach the headline.
+   The band is wide enough (580px) to hold the portrait and the code panel
+   as two neighbours instead of one on top of the other - see the
+   side-by-side block further down. The copy column still keeps 456px of
+   its own at full size, so the headline never has to re-wrap. */
 .hero-grid {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(300px, 34vw, 460px);
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 40vw, 580px);
     align-items: center;
-    gap: clamp(2.5rem, 6vw, 5rem);
+    gap: clamp(2.5rem, 5vw, 4rem);
 }
 
 /* --- Decorative hero atmosphere ---
@@ -1505,9 +1510,10 @@ nav a.is-active::after {
 
 
 /* Slow vertical float, offset from the hero entrance so the two
-   transforms never fight over the same property. The card floats
-   over the lower edge of the portrait instead of sitting beside it,
-   which keeps the hero from growing wider on small screens. */
+   transforms never fight over the same property. Below 1200px the card
+   floats over the lower edge of the portrait rather than sitting beside
+   it, which keeps the hero from growing wider on small screens; from
+   1200px up it moves into its own column and covers nothing. */
 .console-card {
     position: absolute;
     left: 0;
@@ -1583,6 +1589,65 @@ nav a.is-active::after {
 .code-var   { color: var(--accent-strong); }
 .code-prop  { color: #7dd3fc; }
 .code-str   { color: #86efac; }
+
+/* --- Hero side-by-side (wide screens) ---
+   From 1200px there is finally room for the code panel to stand BESIDE
+   the portrait instead of lying across it, so the photo is never covered.
+   The visual column becomes a two-cell grid - portrait left, console card
+   right - and nothing else about the piece changes: the card simply
+   rejoins normal flow instead of being dropped past the photo's bottom
+   edge, and the rings re-centre on the portrait's new cell. Below 1200px
+   every rule here is out of range and the old stacked layout applies
+   untouched. */
+
+@media (min-width: 1200px) {
+    .hero-visual {
+        /* Equal cells, so the portrait's centre is a quarter of the way in */
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        justify-items: stretch;
+        align-items: center;
+        gap: clamp(14px, 1.6vw, 22px);
+
+        /* Nothing hangs past the portrait any more, so the room the card
+           used to reserve underneath it is handed back to the hero. */
+        --portrait-drop: 0px;
+        margin-bottom: 0;
+    }
+
+    .hero-portrait {
+        justify-self: center;
+        width: min(100%, 265px);
+    }
+
+    /* The rings follow the portrait into the left cell. They are sized off
+       the column and stay well inside the gap, so they can never reach the
+       headline - the same promise the .hero-grid comment makes. */
+    .hero-ring        { left: 25%; }
+    .hero-ring-outer  { width: min(74%, 330px); }
+    .hero-ring-inner  { width: min(72%, 290px); }
+
+    /* Back in normal flow: no absolute offsets, no dropped margin, and the
+       idle float (`translate`) plus hover lift (`scale`) still work because
+       `transform` is left untouched. */
+    .console-card {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        align-self: center;
+        width: 100%;
+        max-width: 320px;
+        margin-inline: auto;
+    }
+
+    /* The panel now shares its column with the portrait, so the snippet
+       steps down a size to sit on one line for as long as it can. */
+    .console-body {
+        padding: 0.85rem 0.7rem 0.95rem;
+        font-size: clamp(0.55rem, 0.78vw, 0.64rem);
+        line-height: 1.8;
+    }
+}
 
 /* --- Scroll hint --- */
 
@@ -2113,26 +2178,52 @@ footer p {
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
     background: linear-gradient(140deg, var(--accent) 0%, #2563eb 100%);
     color: var(--on-accent);
     font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: 0.03em;
-    box-shadow: 0 6px 18px rgba(34, 211, 238, 0.35);
+
+    /* Four layers: the drop the badge casts, a bright inner edge that
+       separates it from the dark panel, a close cyan bloom and a much
+       wider blue one. Two glow radii read as a lit object instead of a
+       flat square, and the widest layer is what makes it pop against
+       the header's own backdrop blur. */
+    box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.42),
+        0 0 0 1px rgba(255, 255, 255, 0.32),
+        0 0 22px rgba(34, 211, 238, 0.6),
+        0 0 56px rgba(59, 130, 246, 0.45);
     transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease);
+}
+
+/* The "AI" wordmark. Its gradient is clipped to the glyphs so the letters
+   read as a bright mark instead of flat paint, and the parent keeps its own
+   `color` so anything that cannot clip a background still gets solid text.
+   Guarded by @supports so a browser without background-clip:text can never
+   end up with transparent lettering on a coloured badge. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .chat-avatar-text {
+        background-image: linear-gradient(150deg, #ffffff 0%, #e9feff 42%, #7dd3fc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 1px 7px rgba(34, 211, 238, 0.9));
+    }
 }
 
 /* Breathing ring on the avatar */
 .chat-avatar::after {
     content: "";
     position: absolute;
-    inset: -3px;
-    border-radius: 15px;
-    border: 1px solid rgba(34, 211, 238, 0.35);
+    inset: -4px;
+    border-radius: 19px;
+    border: 1.5px solid rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.4);
     animation: avatar-breathe 2.8s var(--ease) infinite alternate;
     pointer-events: none;
 }
@@ -2143,8 +2234,12 @@ footer p {
 }
 
 .chat-header:hover .chat-avatar {
-    transform: scale(1.05);
-    box-shadow: 0 8px 24px rgba(34, 211, 238, 0.5);
+    transform: scale(1.07);
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.4),
+        0 0 28px rgba(34, 211, 238, 0.78),
+        0 0 70px rgba(59, 130, 246, 0.55);
 }
 
 .chat-titles {
@@ -3153,5 +3248,298 @@ html.cursor-ready .cursor-dot.is-hot {
 
     .console-card {
         max-width: 300px;
+    }
+}
+
+
+/* =========================================================
+   16. MOTION ENHANCEMENTS (additive)
+   ---------------------------------------------------------
+   16.1  Reading progress bar
+   16.2  Magnetic buttons
+   16.3  Split-text heading reveal
+   16.4  Pointer-tracked card glare + directional shadow
+   16.5  Reactive cursor aura
+   16.6  Section transition light sweep
+   16.7  Ambient background ribbon
+   16.8  Press feedback
+   16.9  Guards
+   ---------------------------------------------------------
+   Nothing in sections 1-15 was removed or reworked. Every rule
+   below either adds a new layer, or supplies an override that
+   resolves to the original value whenever script.js is not
+   driving it: --mag-*, --progress, --shadow-* and --glow-*
+   all fall back to their neutral defaults.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   16.1  READING PROGRESS BAR
+   --progress is written from script.js and clamped to 0..1.
+   Only transform changes while scrolling, so the bar never
+   triggers layout or a repaint of the header.
+   --------------------------------------------------------- */
+
+.scroll-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--accent), #3b82f6 62%, #a5f3fc);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left center;
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease);
+}
+
+/* Nothing to report until the header has condensed */
+header.is-scrolled .scroll-progress {
+    opacity: 1;
+}
+
+
+/* ---------------------------------------------------------
+   16.2  MAGNETIC BUTTONS
+   script.js eases --mag-x / --mag-y / --mag-scale towards the
+   pointer and stops its frame loop once the value has settled,
+   so no CSS transition is needed here and no rAF runs at idle.
+   The existing hover lift and press nudge live in `transform`,
+   which composes with these independent properties.
+   --------------------------------------------------------- */
+
+.btn {
+    translate: var(--mag-x, 0px) var(--mag-y, 0px);
+    scale: var(--mag-scale, 1);
+}
+
+
+/* ---------------------------------------------------------
+   16.3  SPLIT-TEXT HEADING REVEAL
+   script.js wraps every word of a .section-title in a mask and
+   restores the plain sentence as aria-label, so the heading is
+   still announced as one string. The split only ever happens in
+   the DOM, so a visitor without JavaScript gets the untouched
+   markup instead.
+   --------------------------------------------------------- */
+
+.word-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+
+    /* Room for descenders and tall glyphs, handed straight back
+       afterwards so the line box never grows */
+    padding-bottom: 0.16em;
+    margin-bottom: -0.16em;
+}
+
+.word-in {
+    display: inline-block;
+    translate: 0 115%;
+    transition: translate 0.8s var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.section-title.is-visible .word-in {
+    translate: 0 0;
+}
+
+
+/* ---------------------------------------------------------
+   16.4  POINTER-TRACKED GLARE + DIRECTIONAL SHADOW
+   The glare is a second gradient layer on the glow element that
+   already follows the pointer. It stays the first child of the
+   card, so it still paints behind the text and costs no markup.
+   The shadow then leans with the tilt, so the card reads as lit
+   from one direction instead of glowing evenly all over.
+   --------------------------------------------------------- */
+
+.glass-card:hover .card-glow {
+    background:
+        radial-gradient(
+            circle at var(--glow-x, 50%) var(--glow-y, 50%),
+            rgba(255, 255, 255, 0.17) 0%,
+            rgba(255, 255, 255, 0.06) 16%,
+            transparent 42%
+        ),
+        radial-gradient(circle, rgba(34, 211, 238, 0.16) 0%, transparent 62%);
+}
+
+/* With no pointer driving --shadow-x / --shadow-y this resolves to
+   the same shadow --shadow-lg already produced on hover. */
+.glass-card:hover {
+    box-shadow:
+        calc(var(--shadow-x, 0) * 24px)
+        calc(var(--shadow-y, 0) * 24px + 26px)
+        70px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(34, 211, 238, 0.12),
+        0 16px 38px -14px rgba(34, 211, 238, 0.22);
+}
+
+
+/* ---------------------------------------------------------
+   16.5  REACTIVE CURSOR AURA
+   The aura leans in towards whatever the pointer is over, so it
+   reads as one system with the dot instead of a flat follow.
+   `scale` is used rather than `transform`, because script.js
+   writes the position through transform on every frame.
+   --------------------------------------------------------- */
+
+.cursor-aura {
+    transition:
+        opacity var(--t-base) var(--ease),
+        scale 0.5s var(--ease-out);
+}
+
+html.cursor-ready .cursor-aura.is-hot {
+    scale: 1.45;
+    opacity: 0.9;
+}
+
+
+/* ---------------------------------------------------------
+   16.6  SECTION TRANSITION LIGHT SWEEP
+   A one-shot hairline that crosses the top of the page when an
+   in-page section link is followed. It never intercepts the
+   navigation and never takes pointer events; the keyframes end
+   at opacity 0, so the resting state costs nothing to paint.
+   --------------------------------------------------------- */
+
+.page-veil {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    z-index: 10001;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--accent) 30%,
+        #3b82f6 70%,
+        transparent 100%
+    );
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.65);
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+.page-veil.is-flash {
+    animation: veil-sweep 0.72s var(--ease-out) forwards;
+}
+
+@keyframes veil-sweep {
+    0%   { opacity: 1; transform: scaleX(0); }
+    45%  { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1); }
+}
+
+
+/* ---------------------------------------------------------
+   16.7  AMBIENT BACKGROUND RIBBON
+   One very wide, very faint conic wash that turns once every
+   80 seconds. Only `rotate` animates, so the gradient is painted
+   once and then handed to the compositor.
+   --------------------------------------------------------- */
+
+.bg-ribbon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 76vmax;
+    height: 76vmax;
+    translate: -50% -50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(34, 211, 238, 0.075) 70deg,
+        transparent 155deg,
+        rgba(59, 130, 246, 0.075) 250deg,
+        transparent 335deg
+    );
+    filter: blur(62px);
+    opacity: 0.55;
+    animation: ribbon-turn 80s linear infinite;
+}
+
+@keyframes ribbon-turn {
+    to { rotate: 360deg; }
+}
+
+
+/* ---------------------------------------------------------
+   16.8  PRESS FEEDBACK
+   The card settles by a pixel under the pointer, which reads as
+   a press even though the card itself is not interactive.
+   --------------------------------------------------------- */
+
+.glass-card:active {
+    --lift: -1px;
+}
+
+
+/* ---------------------------------------------------------
+   16.9  GUARDS
+   No pointer-driven motion without a real pointer, and none of
+   it at all under prefers-reduced-motion. The global `*` rule in
+   section 14 already collapses every duration; these lines take
+   the effects away entirely rather than merely speeding them up.
+   --------------------------------------------------------- */
+
+@media (hover: none) {
+    .btn {
+        translate: none;
+        scale: 1;
+    }
+
+    .glass-card:active {
+        --lift: 0px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-veil {
+        display: none;
+    }
+
+    .bg-ribbon,
+    .word-in {
+        animation: none;
+    }
+
+    .word-in {
+        translate: none;
+    }
+
+    .scroll-progress,
+    .cursor-aura {
+        transition: none;
+    }
+}
+
+/* --- The ribbon is the most expensive layer on the page, so it
+   shrinks with the viewport rather than competing with real
+   content on a phone. --- */
+
+@media (max-width: 980px) {
+    .bg-ribbon {
+        width: 66vmax;
+        height: 66vmax;
+        filter: blur(54px);
+        opacity: 0.45;
+    }
+}
+
+@media (max-width: 600px) {
+    .bg-ribbon {
+        width: 58vmax;
+        height: 58vmax;
+        filter: blur(46px);
+        opacity: 0.4;
     }
 }

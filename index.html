@@ -60,6 +60,7 @@
         <div class="bg-orb bg-orb-a"></div>
         <div class="bg-orb bg-orb-b"></div>
         <div class="bg-orb bg-orb-c"></div>
+        <div class="bg-ribbon"></div>
         <div class="bg-beam"></div>
         <div class="bg-vignette"></div>
     </div>
@@ -107,6 +108,11 @@
             </button>
 
         </div>
+
+        <!-- Reading progress along the bottom edge of the header.
+             Purely decorative: scaleX is driven from script.js. -->
+        <span class="scroll-progress" id="scrollProgress" aria-hidden="true"></span>
+
     </header>
 
 
@@ -602,7 +608,7 @@
 
             <div class="chat-header">
                 <div class="chat-identity">
-                    <span class="chat-avatar" aria-hidden="true">AI</span>
+                    <span class="chat-avatar" aria-hidden="true"><span class="chat-avatar-text">AI</span></span>
                     <div class="chat-titles">
                         <h3 id="chatTitle">AI AHMAD</h3>
                         <span class="chat-status">
@@ -676,6 +682,17 @@
 
     <div class="cursor-aura" id="cursorAura" aria-hidden="true"></div>
     <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+
+    <!-- =========================================================
+         SECTION TRANSITION LIGHT SWEEP (decorative)
+         A single hairline that crosses the top of the page when an
+         in-page section link is followed. It never intercepts the
+         navigation - native smooth scrolling still does the moving -
+         and it captures no pointer events.
+         ========================================================= -->
+
+    <div class="page-veil" id="pageVeil" aria-hidden="true"></div>
 
 
     <script src="script.js"></script>
