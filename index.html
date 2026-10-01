@@ -17,9 +17,38 @@
     >
 
     <link rel="stylesheet" href="style.css">
-</head>
+
+    <!-- Added before first paint so the site can fade in behind the
+         preloader. Runs before any body markup is parsed, so there is
+         no flash of unstyled content. If JavaScript is disabled this
+         line never runs and the page simply renders as normal. -->
+    <script>document.documentElement.classList.add("is-preloading");</script></head>
 
 <body>
+
+    <!-- =========================================================
+         PRELOADER (decorative)
+         Auto-dismisses on window load, with a hard timeout as a safety
+         net. Never blocks the page and never captures pointer events.
+         ========================================================= -->
+
+    <div id="siteLoader" class="loader" role="status" aria-label="Loading portfolio">
+        <div class="loader-core">
+
+            <div class="loader-mark" aria-hidden="true">
+                <span class="loader-mark-ring"></span>
+                <span class="loader-mark-text">AS</span>
+            </div>
+
+            <p class="loader-name">Ahmad Shah</p>
+            <p class="loader-role">Web Developer &amp; AI Enthusiast</p>
+
+            <div class="loader-bar" aria-hidden="true">
+                <span class="loader-bar-fill"></span>
+            </div>
+
+        </div>
+    </div>
 
     <!-- =========================================================
          AMBIENT BACKGROUND (decorative)
@@ -56,6 +85,7 @@
             </a>
 
             <nav id="primaryNav" aria-label="Primary">
+                <span class="nav-indicator" aria-hidden="true"></span>
                 <a href="#home">Home</a>
                 <a href="#about">About</a>
                 <a href="#skills">Skills</a>
@@ -88,6 +118,20 @@
 
         <section id="home" class="hero">
 
+            <!-- Decorative hero atmosphere: aurora, perspective grid, drifting motes -->
+            <div class="hero-fx" aria-hidden="true">
+                <span class="hero-aurora"></span>
+                <span class="hero-aurora hero-aurora-b"></span>
+                <span class="hero-grid-plane"></span>
+                <span class="hero-sweep"></span>
+                <span class="hero-mote"></span>
+                <span class="hero-mote"></span>
+                <span class="hero-mote"></span>
+                <span class="hero-mote"></span>
+                <span class="hero-mote"></span>
+                <span class="hero-mote"></span>
+            </div>
+
             <div class="container hero-grid">
 
                 <div class="hero-text">
@@ -98,7 +142,8 @@
                     </p>
 
                     <h1>
-                        Hi, I'm <span class="accent-text">Ahmad Shah</span>
+                        <span class="line-mask"><span class="line-in">Hi, I'm</span></span>
+                        <span class="line-mask"><span class="line-in accent-text">Ahmad Shah</span></span>
                     </h1>
 
                     <h2>Web Developer &amp; AI Enthusiast</h2>
@@ -114,10 +159,12 @@
                             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M5 12h14M13 6l6 6-6 6"/>
                             </svg>
+                            <span class="btn-shine" aria-hidden="true"></span>
                         </a>
 
                         <a href="#contact" class="btn second">
                             Contact Me
+                            <span class="btn-shine" aria-hidden="true"></span>
                         </a>
                     </div>
 
@@ -131,13 +178,32 @@
 
                 </div>
 
-                <!-- Decorative developer console card -->
-                <aside class="hero-visual" aria-hidden="true">
+                <!-- Hero visual: portrait, holographic frame and console card -->
+                <aside class="hero-visual">
 
-                    <div class="hero-ring hero-ring-outer"></div>
-                    <div class="hero-ring hero-ring-inner"></div>
+                    <div class="hero-ring hero-ring-outer" aria-hidden="true"></div>
+                    <div class="hero-ring hero-ring-inner" aria-hidden="true"></div>
 
-                    <div class="console-card">
+                    <figure class="hero-portrait" data-portrait>
+                        <span class="portrait-media">
+                            <img
+                                class="portrait-img"
+                                src="images/ahmad.jpg"
+                                alt="Portrait of Ahmad Shah"
+                                width="1086"
+                                height="1448"
+                                decoding="async"
+                                fetchpriority="high"
+                            >
+                            <span class="portrait-scan" aria-hidden="true"></span>
+                            <span class="portrait-sheen" aria-hidden="true"></span>
+                        </span>
+
+                        <span class="portrait-ring" aria-hidden="true"></span>
+                        <span class="portrait-corners" aria-hidden="true"></span>
+                    </figure>
+
+                    <div class="console-card" aria-hidden="true">
 
                         <div class="console-bar">
                             <span class="console-dot"></span>
@@ -404,7 +470,10 @@
                         </ul>
 
                         <!-- TODO: no public project URL yet — keep as a non-link button -->
-                        <button type="button" class="btn card-btn">View Project</button>
+                        <button type="button" class="btn card-btn">
+                            View Project
+                            <span class="btn-shine" aria-hidden="true"></span>
+                        </button>
                     </article>
 
 
@@ -449,7 +518,10 @@
                         </ul>
 
                         <!-- TODO: no public project URL yet — keep as a non-link button -->
-                        <button type="button" class="btn card-btn">View Project</button>
+                        <button type="button" class="btn card-btn">
+                            View Project
+                            <span class="btn-shine" aria-hidden="true"></span>
+                        </button>
                     </article>
 
                 </div>
@@ -496,6 +568,7 @@
 
                     <button type="button" class="btn" onclick="showMessage()">
                         Contact Me
+                        <span class="btn-shine" aria-hidden="true"></span>
                     </button>
 
                     <p id="contactStatus" class="contact-status" role="status" aria-live="polite"></p>
@@ -592,6 +665,17 @@
             </p>
         </div>
     </footer>
+
+
+    <!-- =========================================================
+         POINTER GLOW (desktop only, decorative)
+         Purely additive: the real cursor is never hidden, so clicking
+         and text selection behave exactly as normal. Enabled by
+         script.js only for fine pointers without reduced motion.
+         ========================================================= -->
+
+    <div class="cursor-aura" id="cursorAura" aria-hidden="true"></div>
+    <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
 
 
     <script src="script.js"></script>

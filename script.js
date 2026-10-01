@@ -9,6 +9,89 @@
 
 
 // ===============================
+// PRELOADER
+// ===============================
+
+// Shortest and longest the intro is allowed to last. The minimum stops
+// the loader from flashing past on a warm cache; the maximum guarantees
+// the page is never left hidden, whatever happens to the load event.
+const PRELOADER_MIN_MS = 620;
+const PRELOADER_MAX_MS = 2200;
+
+function prefersReducedMotion() {
+
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+}
+
+function initPreloader() {
+
+    const root = document.documentElement;
+    const loader = document.getElementById("siteLoader");
+    const started = performance.now();
+
+    const reduceMotion = prefersReducedMotion();
+
+    let finished = false;
+    let safety = null;
+    let release = null;
+
+    // Reveal the site and drop the overlay
+    function finish() {
+
+        if (finished) {
+            return;
+        }
+
+        finished = true;
+
+        clearTimeout(safety);
+        clearTimeout(release);
+
+        root.classList.remove("is-preloading");
+
+        if (!loader || reduceMotion) {
+
+            if (loader) {
+                loader.remove();
+            }
+
+            return;
+        }
+
+        loader.classList.add("is-done");
+
+        // transitionend is the normal path; the timeout is a safety net
+        loader.addEventListener("transitionend", () => loader.remove(), { once: true });
+        setTimeout(() => loader.remove(), 900);
+
+    }
+
+    // Wait out the minimum intro, then dismiss
+    function finishAfterMinimum() {
+
+        release = setTimeout(finish, Math.max(0, PRELOADER_MIN_MS - (performance.now() - started)));
+
+    }
+
+    // Nothing here may hold the page hostage
+    safety = setTimeout(finish, PRELOADER_MAX_MS);
+
+    if (reduceMotion) {
+        finish();
+        return;
+    }
+
+    if (document.readyState === "complete") {
+        finishAfterMinimum();
+    } else {
+        window.addEventListener("load", finishAfterMinimum, { once: true });
+    }
+
+}
+
+
+// ===============================
 // CONTACT
 // ===============================
 
@@ -353,6 +436,28 @@ function initHeaderScroll() {
 // ACTIVE NAVIGATION LINK
 // ===============================
 
+// Slides the pill indicator under whichever link is active
+function moveNavIndicator(link) {
+
+    const nav = document.getElementById("primaryNav");
+    const indicator = nav ? nav.querySelector(".nav-indicator") : null;
+
+    if (!nav || !indicator) {
+        return;
+    }
+
+    // Dropped on mobile, where the nav is a vertical dropdown
+    if (window.innerWidth <= 860 || !link) {
+        indicator.classList.remove("is-visible");
+        return;
+    }
+
+    indicator.style.width = link.offsetWidth + "px";
+    indicator.style.transform = "translateX(" + link.offsetLeft + "px)";
+    indicator.classList.add("is-visible");
+
+}
+
 function initActiveNavLink() {
 
     const sections = document.querySelectorAll("section[id]");
@@ -364,16 +469,26 @@ function initActiveNavLink() {
     const links = document.querySelectorAll("#primaryNav a");
 
     const setActive = (id) => {
+
+        let activeLink = null;
+
         links.forEach((link) => {
+
             const isMatch = link.getAttribute("href") === "#" + id;
+
             link.classList.toggle("is-active", isMatch);
 
             if (isMatch) {
                 link.setAttribute("aria-current", "true");
+                activeLink = link;
             } else {
                 link.removeAttribute("aria-current");
             }
+
         });
+
+        moveNavIndicator(activeLink);
+
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -393,6 +508,26 @@ function initActiveNavLink() {
 
     sections.forEach((section) => observer.observe(section));
 
+    // Keep the pill lined up when the layout or the fonts change
+    let resizeTimer = 0;
+
+    const reposition = () => {
+
+        clearTimeout(resizeTimer);
+
+        resizeTimer = setTimeout(() => {
+            const current = document.querySelector("#primaryNav a.is-active");
+            moveNavIndicator(current);
+        }, 150);
+
+    };
+
+    window.addEventListener("resize", reposition, { passive: true });
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(reposition);
+    }
+
 }
 
 
@@ -400,14 +535,18 @@ function initActiveNavLink() {
 // SCROLL REVEAL
 // ===============================
 
+// Effects cycle through the cards of a group so a row does not repeat
+// the same entrance three times in a row.
+const REVEAL_CYCLE = ["left", "scale", "right"];
+
 function initScrollReveal() {
 
     const groups = [
-        { selector: ".about-grid > *", step: true },
-        { selector: ".skills-container > *", step: true },
-        { selector: ".projects-container > *", step: true },
-        { selector: ".contact-box", step: false },
-        { selector: ".section-head", step: false }
+        { selector: ".section-head", variant: "up", step: false },
+        { selector: ".about-grid > *", variant: "cycle", step: true },
+        { selector: ".skills-container > *", variant: "scale", step: true },
+        { selector: ".projects-container > *", variant: "cycle", step: true },
+        { selector: ".contact-box", variant: "scale", step: false }
     ];
 
     const targets = [];
@@ -415,13 +554,19 @@ function initScrollReveal() {
     groups.forEach((group) => {
 
         document.querySelectorAll(group.selector).forEach((element, index) => {
+
             element.classList.add("reveal");
 
+            element.dataset.reveal = group.variant === "cycle"
+                ? REVEAL_CYCLE[index % REVEAL_CYCLE.length]
+                : group.variant;
+
             if (group.step) {
-                element.dataset.delay = String((index % 6) + 1);
+                element.dataset.delay = String((index % 8) + 1);
             }
 
             targets.push(element);
+
         });
 
     });
@@ -431,7 +576,7 @@ function initScrollReveal() {
     }
 
     // Users who prefer reduced motion see content immediately
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
         targets.forEach((element) => element.classList.add("is-visible"));
         return;
     }
@@ -458,8 +603,12 @@ function initScrollReveal() {
 
 
 // ===============================
-// CARD POINTER GLOW
+// CARD POINTER GLOW + 3D TILT
 // ===============================
+// One listener per card handles both effects. Tilt is deliberately
+// shallow (see MAX_TILT) so cards feel responsive rather than wobbly.
+
+const MAX_TILT = 5;
 
 function initCardGlow() {
 
@@ -467,7 +616,10 @@ function initCardGlow() {
         return;
     }
 
-    document.querySelectorAll(".glass-card").forEach((card) => {
+    const canTilt = !prefersReducedMotion();
+    const cards = document.querySelectorAll(".glass-card");
+
+    cards.forEach((card) => {
 
         card.addEventListener("pointermove", (event) => {
 
@@ -476,7 +628,132 @@ function initCardGlow() {
             card.style.setProperty("--glow-x", (event.clientX - rect.left) + "px");
             card.style.setProperty("--glow-y", (event.clientY - rect.top) + "px");
 
+            if (!canTilt) {
+                return;
+            }
+
+            // -0.5 .. 0.5 across the card
+            const acrossX = (event.clientX - rect.left) / rect.width - 0.5;
+            const acrossY = (event.clientY - rect.top) / rect.height - 0.5;
+
+            card.style.setProperty("--tilt-y", (acrossX * MAX_TILT).toFixed(2) + "deg");
+            card.style.setProperty("--tilt-x", (-acrossY * MAX_TILT).toFixed(2) + "deg");
+
         });
+
+        // Settle back to flat once the pointer leaves
+        card.addEventListener("pointerleave", () => {
+
+            card.style.setProperty("--tilt-x", "0deg");
+            card.style.setProperty("--tilt-y", "0deg");
+
+        });
+
+    });
+
+}
+
+
+// ===============================
+// POINTER GLOW
+// ===============================
+// Desktop, fine-pointer devices only. The real cursor is never hidden,
+// so clicking and text selection are completely unaffected. The small
+// dot tracks exactly; the large soft aura follows with a light lag
+// driven by requestAnimationFrame, which stops as soon as the pointer
+// leaves the window or the tab is hidden.
+
+function initPointerGlow() {
+
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (!finePointer || prefersReducedMotion()) {
+        return;
+    }
+
+    const dot = document.getElementById("cursorDot");
+    const aura = document.getElementById("cursorAura");
+
+    if (!dot || !aura) {
+        return;
+    }
+
+    const root = document.documentElement;
+    const interactive = "a, button, input, .glass-card";
+
+    let targetX = 0;
+    let targetY = 0;
+    let auraX = 0;
+    let auraY = 0;
+    let frame = 0;
+    let tracking = false;
+
+    // Clamp to the viewport so neither layer can ever reach the
+    // horizontal scrollbar
+    const clampX = (value, width) => Math.min(Math.max(value, width / 2), window.innerWidth - width / 2);
+
+    function follow() {
+
+        // Eased chase, which is what makes the aura feel weighty
+        auraX += (targetX - auraX) * 0.18;
+        auraY += (targetY - auraY) * 0.18;
+
+        aura.style.transform =
+            "translate3d(" + clampX(auraX, 320).toFixed(1) + "px," + clampX(auraY, 320).toFixed(1) + "px,0)";
+
+        frame = requestAnimationFrame(follow);
+
+    }
+
+    function start() {
+
+        if (!frame) {
+            frame = requestAnimationFrame(follow);
+        }
+
+    }
+
+    function stop() {
+
+        if (frame) {
+            cancelAnimationFrame(frame);
+            frame = 0;
+        }
+
+        tracking = false;
+        root.classList.remove("cursor-ready");
+
+    }
+
+    document.addEventListener("pointermove", (event) => {
+
+        targetX = event.clientX;
+        targetY = event.clientY;
+
+        dot.style.transform =
+            "translate3d(" + clampX(targetX, 8).toFixed(1) + "px," + clampX(targetY, 8).toFixed(1) + "px,0)";
+
+        if (!tracking) {
+            tracking = true;
+            root.classList.add("cursor-ready");
+            auraX = targetX;
+            auraY = targetY;
+        }
+
+        const over = event.target instanceof Element && event.target.closest(interactive);
+        dot.classList.toggle("is-hot", Boolean(over));
+
+        start();
+
+    }, { passive: true });
+
+    document.addEventListener("pointerleave", stop, { passive: true });
+
+    document.addEventListener("visibilitychange", () => {
+
+        if (document.hidden) {
+            stop();
+        }
 
     });
 
@@ -532,6 +809,70 @@ function initCurrentYear() {
 
 
 // ===============================
+// HERO PORTRAIT
+// ===============================
+// Two small jobs: a shallow 3D tilt that follows the pointer across
+// the photo, and a safety net that removes the frame entirely if the
+// image is ever missing, so a bad file can never break the hero.
+// The tilt is desktop-only and off under reduced motion; the rest of
+// the frame (float, light border, scan, sheen) is pure CSS.
+
+const PORTRAIT_TILT = 6;
+
+function initHeroPortrait() {
+
+    const portrait = document.querySelector("[data-portrait]");
+
+    if (!portrait) {
+        return;
+    }
+
+    const img = portrait.querySelector("img");
+
+    // Missing or broken image: drop the whole frame, the rings and the
+    // console card stay exactly as they are.
+    if (img) {
+        img.addEventListener("error", () => {
+            portrait.remove();
+        });
+    }
+
+    const canTilt =
+        !prefersReducedMotion() &&
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (!canTilt) {
+        return;
+    }
+
+    // Listens on the whole visual, not the frame: the console card sits
+    // over the lower edge of the photo and would otherwise swallow the
+    // events there. The frame is still what gets measured and moved.
+    const area = portrait.closest(".hero-visual") || portrait;
+
+    area.addEventListener("pointermove", (event) => {
+
+        const rect = portrait.getBoundingClientRect();
+
+        const acrossX = (event.clientX - rect.left) / rect.width - 0.5;
+        const acrossY = (event.clientY - rect.top) / rect.height - 0.5;
+
+        portrait.style.setProperty("--tilt-y", (acrossX * PORTRAIT_TILT).toFixed(2) + "deg");
+        portrait.style.setProperty("--tilt-x", (-acrossY * PORTRAIT_TILT).toFixed(2) + "deg");
+
+    });
+
+    area.addEventListener("pointerleave", () => {
+
+        portrait.style.setProperty("--tilt-x", "0deg");
+        portrait.style.setProperty("--tilt-y", "0deg");
+
+    });
+
+}
+
+
+// ===============================
 // INIT
 // ===============================
 
@@ -569,8 +910,14 @@ function init() {
     initActiveNavLink();
     initScrollReveal();
     initCardGlow();
+    initHeroPortrait();
+    initPointerGlow();
     initKeyboardShortcuts();
     initCurrentYear();
+
+    // Always last, and never skipped: an error above must not leave the
+    // page stuck behind the preloader.
+    initPreloader();
 
 }
 

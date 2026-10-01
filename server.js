@@ -15,7 +15,14 @@ const client = new OpenAI({
 // Website files
 // Only the public front-end assets below are served. Server-side source,
 // package manifests, docs and .env must never be reachable over HTTP.
-const PUBLIC_FILES = new Set(["index.html", "style.css", "script.js"]);
+// Paths are matched on the file name, so "ahmad.jpg" covers the hero
+// portrait requested as /images/ahmad.jpg by index.html.
+const PUBLIC_FILES = new Set([
+    "index.html",
+    "style.css",
+    "script.js",
+    "ahmad.jpg"
+]);
 
 app.use((req, res, next) => {
 
